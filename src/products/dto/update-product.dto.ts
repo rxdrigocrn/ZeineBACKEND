@@ -1,4 +1,5 @@
 import { IsString, IsOptional, IsNumber, IsEnum, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { ProductCategory, ProductStatus } from '@prisma/client';
 
 export class UpdateProductDto {
@@ -10,9 +11,10 @@ export class UpdateProductDto {
     @IsOptional()
     description?: string;
 
+    @IsOptional()
+    @Transform(({ value }) => (value !== undefined ? parseFloat(value) : value)) 
     @IsNumber({ maxDecimalPlaces: 2 })
     @Min(0.01)
-    @IsOptional()
     price?: number;
 
     @IsEnum(ProductCategory)

@@ -8,17 +8,17 @@ import { FindProductsQueryDto } from './dto/find-products-query.dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
-  async create(createProductDto: CreateProductDto, userId: string): Promise<Product> {
+  async create(createProductDto: CreateProductDto, userId: string, imagePath: string): Promise<Product> {
     return this.prisma.product.create({
       data: {
         ...createProductDto,
         userId,
+        image: imagePath,
       },
     });
   }
-
   async findAll(query: FindProductsQueryDto) {
     const { search, status, page = '1', limit = '10' } = query;
 
@@ -38,20 +38,21 @@ export class ProductsService {
     }
 
     const [products, total] = await this.prisma.$transaction([
-        this.prisma.product.findMany({
-            where,
-            skip,
-            take: limitNumber,
-            orderBy: { createdAt: 'desc' },
-        }),
-        this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        skip,
+        take: limitNumber,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.product.count({ where }),
     ]);
 
     return {
-        data: products,
-        total,
-        page: pageNumber,
-        totalPages: Math.ceil(total / limitNumber),
+      data: products,
+      total,
+      page: pageNumber,
+      totalPages: Math.ceil(total / limitNumber),
+
     };
   }
 
@@ -63,16 +64,24 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, userId: string): Promise<Product> {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    userId: string,
+    imagePath?: string
+  ): Promise<Product> {
     const product = await this.findOne(id);
 
     if (product.userId !== userId) {
-        throw new ForbiddenException('Você não tem permissão para editar este produto.');
+      throw new ForbiddenException('Você não tem permissão para editar este produto.');
     }
 
     return this.prisma.product.update({
       where: { id },
-      data: updateProductDto,
+      data: {
+        ...updateProductDto,
+        ...(imagePath ? { image: imagePath } : {}),
+      },
     });
   }
 
@@ -80,11 +89,18 @@ export class ProductsService {
     const product = await this.findOne(id);
 
     if (product.userId !== userId) {
-        throw new ForbiddenException('Você não tem permissão para remover este produto.');
+      throw new ForbiddenException('Você não tem permissão para remover este produto.');
     }
 
     return this.prisma.product.delete({
       where: { id },
+    });
+  }
+
+
+  async countByStatus(status: 'VENDIDO' | 'ANUNCIADO' | 'CANCELADO') {
+    return this.prisma.product.count({
+      where: { status },
     });
   }
 }

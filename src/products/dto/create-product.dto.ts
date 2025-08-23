@@ -1,5 +1,6 @@
 import { IsString, IsNotEmpty, IsNumber, IsEnum, Min } from 'class-validator';
-import {  ProductCategory } from '@prisma/client';
+import { Transform } from 'class-transformer';
+import { ProductCategory } from '@prisma/client';
 
 export class CreateProductDto {
     @IsString()
@@ -10,10 +11,11 @@ export class CreateProductDto {
     @IsNotEmpty()
     description: string;
 
+    @Transform(({ value }) => parseFloat(value)) // converte string para number
     @IsNumber({ maxDecimalPlaces: 2 })
     @Min(0.01)
     price: number;
 
-    @IsEnum(ProductCategory )
+    @IsEnum(ProductCategory)
     category: ProductCategory;
 }
