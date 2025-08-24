@@ -1,7 +1,6 @@
 import { IsString, IsNotEmpty, IsNumber, IsEnum, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { ProductCategory } from '@prisma/client';
-
+ 
 export class CreateProductDto {
     @IsString()
     @IsNotEmpty()

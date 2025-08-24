@@ -50,7 +50,6 @@ export class AuthController {
         let profilePicturePath: string | null = null;
 
         if (file) {
-            // Validação manual do tipo de arquivo (mais confiável)
             const allowedMimes = ['image/png', 'image/jpeg', 'image/jpg'];
             if (!allowedMimes.includes(file.mimetype.toLowerCase())) {
                 throw new BadRequestException(

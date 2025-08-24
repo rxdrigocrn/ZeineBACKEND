@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsNumber, IsEnum, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { ProductCategory, ProductStatus } from '@prisma/client';
+import { ProductStatus } from '@prisma/client';
 
 export class UpdateProductDto {
     @IsString()

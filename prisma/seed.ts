@@ -4,19 +4,17 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-// Função para gerar slug a partir do título
 function slugify(text: string) {
   return text
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')        // espaços → hífen
-    .replace(/[^\w\-]+/g, '')    // remove caracteres especiais
-    .replace(/\-\-+/g, '-');     // múltiplos hífens → 1
+    .replace(/\s+/g, '-')      
+    .replace(/[^\w\-]+/g, '')   
+    .replace(/\-\-+/g, '-');    
 }
 
 async function main() {
-  // Criar usuário base
   const hashedPassword = await bcrypt.hash('123456', 10);
   const user = await prisma.user.upsert({
     where: { email: 'admin@teste.com' },
@@ -29,12 +27,16 @@ async function main() {
     },
   });
 
-  // Categorias base
+
   const categoriesData = [
     { name: 'Brinquedo', slug: 'brinquedo', icon: '🎲' },
-    { name: 'Vestiário', slug: 'vestiario', icon: '👕' },
+    { name: 'Vestuário', slug: 'vestiario', icon: '👕' },
     { name: 'Móvel', slug: 'movel', icon: '🪑' },
+    { name: 'Papelaria', slug: 'papelaria', icon: '✏️' },
+    { name: 'Saúde e Beleza', slug: 'saude-e-beleza', icon: '💄' },
+    { name: 'Utensílio', slug: 'utensilio', icon: '🍴' },
   ];
+
 
   const categories: Category[] = [];
   for (const cat of categoriesData) {
@@ -84,7 +86,7 @@ async function main() {
         status: p.status,
         userId: user.id,
         categoryId: category.id,
-        slug: slugify(p.title),  // ✅ Adiciona slug
+        slug: slugify(p.title),
       },
     });
   }

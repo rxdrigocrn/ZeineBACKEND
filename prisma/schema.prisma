@@ -31,15 +31,6 @@ enum ProductStatus {
   Cancelado
 }
 
-enum ProductCategory {
-  BRINQUEDO
-  MOVEL
-  PAPELARIA
-  SAUDE_E_BELEZA
-  UTENSILIO
-  VESTIARIO
-}
-
 model Category {
   id       String    @id @default(uuid())
   name     String    @unique
@@ -61,7 +52,7 @@ model Product {
   updatedAt   DateTime     @updatedAt
   userId      String
   user        User         @relation(fields: [userId], references: [id])
-  slug        String   @unique // <-- Adicione esta linha
+  slug        String   @unique
 
   @@index([status])
 }

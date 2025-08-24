@@ -1,19 +1,32 @@
 // src/users/users.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterUserDto } from '../auth/dto/register-user.dto';
 import * as bcrypt from 'bcrypt';
 import * as fs from 'fs/promises';
 import { UpdateUserDto } from './dto/update-user.dto';
+
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 
 @Injectable()
 export class UsersService {
-
     constructor(private prisma: PrismaService) { }
 
     async create(registerUserDto: RegisterUserDto, profileImagePath: string | null) {
         const { name, email, password, phone } = registerUserDto;
+
+        const exists = await this.prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (exists) {
+            throw new BadRequestException('E-mail já está em uso');
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await this.prisma.user.create({
@@ -30,14 +43,17 @@ export class UsersService {
         return result;
     }
 
-
-
     async findOneByEmail(email: string) {
-        return this.prisma.user.findUnique({
+        const user = await this.prisma.user.findUnique({
             where: { email },
         });
-    }
 
+        if (!user) {
+            throw new NotFoundException('Usuário não encontrado pelo e-mail informado.');
+        }
+
+        return user;
+    }
 
     async findMe(userId: string) {
         const user = await this.prisma.user.findUnique({
@@ -62,10 +78,14 @@ export class UsersService {
 
     async update(userId: string, updateUserDto: UpdateUserDto, profileImagePath?: string) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
-        if (!user) throw new NotFoundException('Usuário não encontrado.');
+        if (!user) throw new NotFoundException('Usuário não encontrado para atualização.');
 
         if (profileImagePath && user.profileImage) {
-            try { await fs.unlink(user.profileImage); } catch (error) { console.error(error); }
+            try {
+                await fs.unlink(user.profileImage);
+            } catch (error) {
+                console.error('Erro ao remover imagem antiga:', error);
+            }
         }
 
         const updatedUser = await this.prisma.user.update({
@@ -84,5 +104,20 @@ export class UsersService {
         };
     }
 
+    async delete(userId: string) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) throw new NotFoundException('Usuário não encontrado para exclusão.');
 
+        if (user.profileImage) {
+            try {
+                await fs.unlink(user.profileImage);
+            } catch (error) {
+                console.error('Erro ao remover imagem de perfil:', error);
+            }
+        }
+
+        await this.prisma.user.delete({ where: { id: userId } });
+
+        return { message: 'Usuário removido com sucesso.' };
+    }
 }
