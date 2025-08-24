@@ -1,4 +1,3 @@
-// prisma/seed.ts
 import { PrismaClient, ProductStatus, Category } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -27,7 +26,6 @@ async function main() {
     },
   });
 
-
   const categoriesData = [
     { name: 'Brinquedo', slug: 'brinquedo', icon: '🎲' },
     { name: 'Vestuário', slug: 'vestiario', icon: '👕' },
@@ -36,7 +34,6 @@ async function main() {
     { name: 'Saúde e Beleza', slug: 'saude-e-beleza', icon: '💄' },
     { name: 'Utensílio', slug: 'utensilio', icon: '🍴' },
   ];
-
 
   const categories: Category[] = [];
   for (const cat of categoriesData) {
@@ -80,7 +77,7 @@ async function main() {
     const productSlug = slugify(p.title);
 
     await prisma.product.upsert({
-      where: { slug: productSlug },
+      where: { slug_userId: { slug: productSlug, userId: user.id } },
       update: {},
       create: {
         title: p.title,
@@ -93,12 +90,14 @@ async function main() {
         slug: productSlug,
       },
     });
+
   }
+
   console.log('✅ Seed rodado com sucesso');
 }
 
 main()
-  .catch(e => {
+  .catch((e) => {
     console.error(e);
     process.exit(1);
   })

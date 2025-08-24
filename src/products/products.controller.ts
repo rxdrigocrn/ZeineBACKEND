@@ -120,12 +120,13 @@ export class ProductsController {
         const userId = (req.user as any).userId;
         return this.productsService.remove(id, userId);
     }
-
+    
+    @UseGuards(JwtAuthGuard)
     @Get('slug/:slug')
-    async findBySlug(@Param('slug') slug: string) {
-        return this.productsService.findBySlug(slug);
+    async findBySlug(@Param('slug') slug: string, @Req() req: Request) {
+        const userId = (req.user as any).userId;
+        return this.productsService.findBySlug(slug, userId);
     }
-
 
 
 }

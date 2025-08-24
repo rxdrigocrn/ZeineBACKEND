@@ -38,7 +38,7 @@ export class ProductsService {
 
     const slug = this.generateSlug(createProductDto.title);
 
-    const exists = await this.prisma.product.findUnique({ where: { slug } });
+    const exists = await this.prisma.product.findUnique({ where: { slug_userId: { slug, userId } } });
     if (exists) {
       throw new BadRequestException(
         'Já existe um produto com esse título, escolha outro.',
@@ -153,8 +153,10 @@ export class ProductsService {
     });
   }
 
-  async findBySlug(slug: string): Promise<Product> {
-    const product = await this.prisma.product.findUnique({ where: { slug } });
+  async findBySlug(slug: string, userId: string): Promise<Product> {
+    const product = await this.prisma.product.findUnique({
+      where: { slug_userId: { slug, userId } },
+    });
     if (!product) {
       throw new NotFoundException(`Produto com slug "${slug}" não encontrado.`);
     }

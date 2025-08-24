@@ -6,18 +6,25 @@ export class DashboardService {
 
     constructor(private productsService: ProductsService) { }
 
+    async getKpis(userId: string) {
+        const productsData = await this.productsService.findAll(
+            { page: '1', limit: '1000' },
+            userId
+        );
 
-    async getKpis() {
-        const productsData = await this.productsService.findAll({ page: '1', limit: '1000' });
-        const totalActiveProducts = productsData.data.filter(product => product.status === 'Vendido').length;
-        const totalInactiveProducts = productsData.data.filter(product => product.status === 'Cancelado').length;
+        const productsSold = productsData.data.filter(p => p.status === 'Vendido').length;
+        const productsAnnounced = productsData.data.filter(p => p.status === 'Anunciado').length;
+        const productsCanceled = productsData.data.filter(p => p.status === 'Cancelado').length;
+
         const visitors = Array.from({ length: 30 }, () => Math.floor(Math.random() * 150 + 20));
 
         return {
-            totalActiveProducts,
-            totalInactiveProducts,
+            productsSold,
+            productsAnnounced,
+            productsCanceled,
             visitors,
         };
     }
+
 
 }

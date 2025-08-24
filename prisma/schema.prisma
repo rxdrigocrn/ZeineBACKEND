@@ -52,7 +52,8 @@ model Product {
   updatedAt   DateTime     @updatedAt
   userId      String
   user        User         @relation(fields: [userId], references: [id])
-  slug        String   @unique
+  slug        String 
 
+  @@unique([slug, userId], name: "slug_userId")
   @@index([status])
 }
