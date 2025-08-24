@@ -64,7 +64,6 @@ export class UsersService {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
         if (!user) throw new NotFoundException('Usuário não encontrado.');
 
-        // Remover imagem antiga se houver uma nova
         if (profileImagePath && user.profileImage) {
             try { await fs.unlink(user.profileImage); } catch (error) { console.error(error); }
         }
@@ -77,7 +76,6 @@ export class UsersService {
             },
         });
 
-        // Concatenar BASE_URL apenas ao retornar
         return {
             ...updatedUser,
             profileImage: updatedUser.profileImage
