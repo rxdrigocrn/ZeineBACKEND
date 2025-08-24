@@ -55,7 +55,6 @@ export class ProductsController {
 
         fs.mkdirSync('./uploads/products', { recursive: true });
 
-        // Sanitiza o nome do arquivo
         const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
         const filename = `${Date.now()}-${safeName}`;
         const imagePath = `/uploads/products/${filename}`;
@@ -66,10 +65,13 @@ export class ProductsController {
         return this.productsService.create(createProductDto, userId, imageUrl);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get()
-    findAll(@Query() query: FindProductsQueryDto) {
-        return this.productsService.findAll(query);
+    findAll(@Query() query: FindProductsQueryDto, @Req() req: Request) {
+        const userId = (req.user as any).userId;
+        return this.productsService.findAll(query, userId);
     }
+
 
     @Get(':id')
     findOne(@Param('id', ParseUUIDPipe) id: string) {
@@ -124,6 +126,6 @@ export class ProductsController {
         return this.productsService.findBySlug(slug);
     }
 
- 
+
 
 }

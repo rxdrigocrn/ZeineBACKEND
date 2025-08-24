@@ -56,7 +56,7 @@ export class ProductsService {
     });
   }
 
-  async findAll(query: FindProductsQueryDto) {
+  async findAll(query: FindProductsQueryDto, userId: string) {
     const { search, status, page = '1', limit = '10' } = query;
 
     const pageNumber = parseInt(page, 10);
@@ -70,8 +70,8 @@ export class ProductsService {
     }
 
     const skip = (pageNumber - 1) * limitNumber;
+    const where: Prisma.ProductWhereInput = { userId };
 
-    const where: Prisma.ProductWhereInput = {};
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
@@ -107,6 +107,7 @@ export class ProductsService {
       totalPages: Math.ceil(total / limitNumber),
     };
   }
+
 
   async findOne(id: string): Promise<Product> {
     const product = await this.prisma.product.findUnique({ where: { id } });
