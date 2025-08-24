@@ -1,5 +1,4 @@
 import { Controller, Post, Body, UseGuards, Req, Res, Get, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
-import * as Express from 'express';
 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './auth.service';
@@ -9,6 +8,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { UsersService } from '../users/users.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { diskStorage, memoryStorage } from 'multer';
+import type { Express } from 'express';
 
 @Controller('auth')
 export class AuthController {
