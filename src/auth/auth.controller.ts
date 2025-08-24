@@ -64,22 +64,18 @@ export class AuthController {
     }
 
 
-    @UseGuards(LocalAuthGuard)
-    @Post('login')
-    async login(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        const { access_token } = await this.authService.login(req.user);
+   @UseGuards(LocalAuthGuard)
+@Post('login')
+async login(@Req() req: Request) {
+  // Gera o token
+  const { access_token } = await this.authService.login(req.user);
 
-        res.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', 
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            maxAge: 1000 * 60 * 60 * 24,
-            path: '/',
-        });
-
-        return { message: 'Login realizado com sucesso' };
-    }
-
+  // Retorna apenas o token e mensagem
+  return {
+    token: access_token,
+    message: 'Login realizado com sucesso',
+  };
+}
 
     @UseGuards(JwtAuthGuard)
     @Get('profile')
