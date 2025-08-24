@@ -52,11 +52,12 @@ export class AuthController {
 
         res.cookie('access_token', access_token, {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: 1000 * 60 * 60 * 24,
             path: '/',
         });
+
 
         return { message: 'Login realizado com sucesso' };
     }
