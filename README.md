@@ -16,7 +16,11 @@ Ele fornece autenticação JWT, upload de imagens e gerenciamento de usuários e
 - **CORS** habilitado
 
 ---
+## Deploy
 
+- [Front](https://zeine-frontend.vercel.app)
+- [Back](https://zeinebackend.onrender.com)
+---
 ## ⚡ Pré-requisitos
 
 - **Node.js** v18+
