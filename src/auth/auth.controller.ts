@@ -57,7 +57,7 @@ export class AuthController {
                 );
             }
 
-             profilePicturePath = `uploads/profile/${file.filename}`;
+            profilePicturePath = `uploads/profile/${file.filename}`;
         }
 
         return this.usersService.create(registerUserDto, profilePicturePath);
@@ -71,12 +71,11 @@ export class AuthController {
 
         res.cookie('access_token', access_token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 1000 * 60 * 60 * 24,
             path: '/',
         });
-
 
         return { message: 'Login realizado com sucesso' };
     }
