@@ -8,17 +8,35 @@ import { FindProductsQueryDto } from './dto/find-products-query.dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  private readonly baseUrl: string;
 
-  async create(createProductDto: CreateProductDto, userId: string, imagePath: string): Promise<Product> {
+  private generateSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-') // tudo que não é alfanumérico vira '-'
+      .replace(/^-+|-+$/g, '');    // remove '-' no início/fim
+  }
+
+
+  constructor(private prisma: PrismaService) {
+    this.baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+  }
+
+  async create(createProductDto: CreateProductDto, userId: string, imageUrl: string): Promise<Product> {
+    const slug = this.generateSlug(createProductDto.title);
+
     return this.prisma.product.create({
       data: {
         ...createProductDto,
         userId,
-        image: imagePath,
+        image: imageUrl,
+        categoryId: createProductDto.categoryId,
+        slug,
       },
     });
   }
+
   async findAll(query: FindProductsQueryDto) {
     const { search, status, page = '1', limit = '10' } = query;
 
@@ -43,16 +61,21 @@ export class ProductsService {
         skip,
         take: limitNumber,
         orderBy: { createdAt: 'desc' },
+        include: { category: true },
       }),
       this.prisma.product.count({ where }),
     ]);
 
+    const dataWithFullUrl = products.map(p => ({
+      ...p,
+      image: p.image?.startsWith('http') ? p.image : `${this.baseUrl}${p.image.replace(/^\./, '')}`,
+    }));
+
     return {
-      data: products,
+      data: dataWithFullUrl,
       total,
       page: pageNumber,
       totalPages: Math.ceil(total / limitNumber),
-
     };
   }
 
@@ -61,29 +84,46 @@ export class ProductsService {
     if (!product) {
       throw new NotFoundException(`Produto com ID "${id}" não encontrado.`);
     }
-    return product;
+    return {
+      ...product,
+      image: product.image?.startsWith('http') ? product.image : `${this.baseUrl}${product.image.replace(/^\./, '')}`,
+    };
   }
 
-  async update(
-    id: string,
-    updateProductDto: UpdateProductDto,
-    userId: string,
-    imagePath?: string
-  ): Promise<Product> {
+  async update(id: string, updateProductDto: UpdateProductDto, userId: string, imageUrl?: string): Promise<Product> {
     const product = await this.findOne(id);
 
     if (product.userId !== userId) {
       throw new ForbiddenException('Você não tem permissão para editar este produto.');
     }
 
+    const updatedSlug = updateProductDto.title ? this.generateSlug(updateProductDto.title) : product.slug;
+
     return this.prisma.product.update({
       where: { id },
       data: {
         ...updateProductDto,
-        ...(imagePath ? { image: imagePath } : {}),
+        ...(imageUrl ? { image: imageUrl } : {}),
+        ...(updateProductDto.categoryId ? { categoryId: updateProductDto.categoryId } : {}),
+        slug: updatedSlug,
       },
     });
   }
+
+
+  async findBySlug(slug: string): Promise<Product> {
+    const product = await this.prisma.product.findUnique({ where: { slug } });
+    if (!product) {
+      throw new NotFoundException(`Produto com slug "${slug}" não encontrado.`);
+    }
+    return {
+      ...product,
+      image: product.image?.startsWith('http') ? product.image : `${this.baseUrl}${product.image.replace(/^\./, '')}`,
+    };
+  }
+
+
+
 
   async remove(id: string, userId: string): Promise<Product> {
     const product = await this.findOne(id);
@@ -92,15 +132,10 @@ export class ProductsService {
       throw new ForbiddenException('Você não tem permissão para remover este produto.');
     }
 
-    return this.prisma.product.delete({
-      where: { id },
-    });
+    return this.prisma.product.delete({ where: { id } });
   }
 
-
-  async countByStatus(status: 'VENDIDO' | 'ANUNCIADO' | 'CANCELADO') {
-    return this.prisma.product.count({
-      where: { status },
-    });
+  async countByStatus(status: 'Vendido' | 'Anunciado' | 'Cancelado') {
+    return this.prisma.product.count({ where: { status } });
   }
 }

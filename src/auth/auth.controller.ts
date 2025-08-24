@@ -32,14 +32,9 @@ export class AuthController {
         file: Express.Multer.File,
         @Body() registerUserDto: RegisterUserDto
     ) {
-        // Aqui é o log que você pediu
-        console.log('Arquivo recebido:', file);
-        console.log('Campos do usuário:', registerUserDto);
 
-        // Só depois da validação você persiste o arquivo no disco
         let profilePicturePath: string | null = null;
         if (file) {
-            // Exemplo de gravação manual
             const fs = require('fs');
             const path = `./uploads/${Date.now()}-${file.originalname}`;
             fs.writeFileSync(path, file.buffer);
@@ -53,14 +48,13 @@ export class AuthController {
     async login(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         const { access_token } = await this.authService.login(req.user);
 
-        // Setando cookie HttpOnly
         res.cookie('access_token', access_token, {
             httpOnly: true,
             secure: false,
             sameSite: 'lax',
             maxAge: 1000 * 60 * 60 * 24,
+            path: '/',
         });
-
 
         return { message: 'Login realizado com sucesso' };
     }
@@ -74,8 +68,12 @@ export class AuthController {
 
     @Post('logout')
     logout(@Res({ passthrough: true }) res: Response) {
-        res.clearCookie('jwt');
-        return {
+        res.clearCookie('access_token', {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            path: '/',
+        }); return {
             message: 'Deslogado com sucesso!',
         };
     }

@@ -9,8 +9,8 @@ export class DashboardService {
 
     async getKpis() {
         const productsData = await this.productsService.findAll({ page: '1', limit: '1000' });
-        const totalActiveProducts = productsData.data.filter(product => product.status === 'VENDIDO').length;
-        const totalInactiveProducts = productsData.data.filter(product => product.status === 'CANCELADO').length;
+        const totalActiveProducts = productsData.data.filter(product => product.status === 'Vendido').length;
+        const totalInactiveProducts = productsData.data.filter(product => product.status === 'Cancelado').length;
         const visitors = Array.from({ length: 30 }, () => Math.floor(Math.random() * 150 + 20));
 
         return {

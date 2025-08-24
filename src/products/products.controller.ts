@@ -9,7 +9,7 @@ import {
     UseGuards,
     Req,
     Query,
-    ParseUUIDPipe
+    ParseUUIDPipe,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -18,9 +18,17 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { Request } from 'express';
 import { FindProductsQueryDto } from './dto/find-products-query.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
-import { diskStorage, memoryStorage } from 'multer';
+import {
+    UseInterceptors,
+    UploadedFile,
+    ParseFilePipe,
+    MaxFileSizeValidator,
+    FileTypeValidator,
+} from '@nestjs/common';
+import { memoryStorage } from 'multer';
 import * as fs from 'fs';
+
+const BASE_URL = process.env.BASE_URL || '';
 
 @Controller('products')
 export class ProductsController {
@@ -37,21 +45,26 @@ export class ProductsController {
                     new FileTypeValidator({ fileType: /^(image\/jpeg|image\/png)$/ }),
                 ],
                 fileIsRequired: true,
-            })
+            }),
         )
         file: Express.Multer.File,
         @Body() createProductDto: CreateProductDto,
-        @Req() req: Request
+        @Req() req: Request,
     ) {
         const userId = (req.user as any).userId;
 
         fs.mkdirSync('./uploads/products', { recursive: true });
-        const imagePath = `./uploads/products/${Date.now()}-${file.originalname}`;
-        fs.writeFileSync(imagePath, file.buffer);
 
-        return this.productsService.create(createProductDto, userId, imagePath);
+        // Sanitiza o nome do arquivo
+        const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        const filename = `${Date.now()}-${safeName}`;
+        const imagePath = `/uploads/products/${filename}`;
+
+        fs.writeFileSync(`.${imagePath}`, file.buffer);
+        const imageUrl = `${BASE_URL}${imagePath}`;
+
+        return this.productsService.create(createProductDto, userId, imageUrl);
     }
-
 
     @Get()
     findAll(@Query() query: FindProductsQueryDto) {
@@ -75,22 +88,27 @@ export class ProductsController {
                     new FileTypeValidator({ fileType: /^(image\/jpeg|image\/png)$/ }),
                 ],
                 fileIsRequired: false,
-            })
+            }),
         )
         file: Express.Multer.File,
         @Body() updateProductDto: UpdateProductDto,
-        @Req() req: Request
+        @Req() req: Request,
     ) {
         const userId = (req.user as any).userId;
 
-        let imagePath: string | undefined;
+        let imageUrl: string | undefined;
         if (file) {
             fs.mkdirSync('./uploads/products', { recursive: true });
-            imagePath = `./uploads/products/${Date.now()}-${file.originalname}`;
-            fs.writeFileSync(imagePath, file.buffer);
+
+            const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+            const filename = `${Date.now()}-${safeName}`;
+            const imagePath = `/uploads/products/${filename}`;
+
+            fs.writeFileSync(`.${imagePath}`, file.buffer);
+            imageUrl = `${BASE_URL}${imagePath}`;
         }
 
-        return this.productsService.update(id, updateProductDto, userId, imagePath);
+        return this.productsService.update(id, updateProductDto, userId, imageUrl);
     }
 
 
@@ -100,4 +118,12 @@ export class ProductsController {
         const userId = (req.user as any).userId;
         return this.productsService.remove(id, userId);
     }
+
+    @Get('slug/:slug')
+    async findBySlug(@Param('slug') slug: string) {
+        return this.productsService.findBySlug(slug);
+    }
+
+ 
+
 }

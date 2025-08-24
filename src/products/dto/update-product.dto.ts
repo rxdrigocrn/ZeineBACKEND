@@ -12,14 +12,14 @@ export class UpdateProductDto {
     description?: string;
 
     @IsOptional()
-    @Transform(({ value }) => (value !== undefined ? parseFloat(value) : value)) 
+    @Transform(({ value }) => (value !== undefined ? parseFloat(value) : value))
     @IsNumber({ maxDecimalPlaces: 2 })
     @Min(0.01)
     price?: number;
 
-    @IsEnum(ProductCategory)
+    @IsString()
     @IsOptional()
-    category?: ProductCategory;
+    categoryId?: string;
 
     @IsEnum(ProductStatus)
     @IsOptional()

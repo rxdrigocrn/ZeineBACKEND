@@ -9,3 +9,4 @@ import { ProductsModule } from '../products/products.module';
   providers: [DashboardService],
 })
 export class DashboardModule {}
+  

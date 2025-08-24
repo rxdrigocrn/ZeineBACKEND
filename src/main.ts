@@ -7,26 +7,29 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
 async function bootstrap() {
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use(cookieParser());
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+
+  const uploadsPath = join(process.cwd(), 'uploads');
+
+  app.useStaticAssets(uploadsPath, {
     prefix: '/uploads/',
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    })
+  );
 
   app.enableCors({
-    origin: 'http://localhost:3000', 
+    origin: 'http://localhost:3000',
     credentials: true,
   });
 
   await app.listen(5000);
 }
 bootstrap();
-
