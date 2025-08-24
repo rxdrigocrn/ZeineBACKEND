@@ -20,7 +20,7 @@ Ele fornece autenticação JWT, upload de imagens e gerenciamento de usuários e
 ## ⚡ Pré-requisitos
 
 - **Node.js** v18+
-- **NPM**, **Yarn** ou **PNPM**
+- **NPM**
 - **PostgreSQL** rodando localmente ou remoto
 
 ---
@@ -103,8 +103,6 @@ Uploads de imagens são servidos pela pasta `/uploads` (configurada no `main.ts`
 | `npm run build`     | Compila o projeto Nest.js para `dist`                |
 | `npm run migrate`   | Roda migrações do Prisma + seed                      |
 | `npm run seed`      | Apenas executa o seed do banco                       |
-| `npm run test`      | Executa testes unitários                             |
-| `npm run test:e2e`  | Executa testes end-to-end                            |
 | `npm run lint`      | Executa ESLint para corrigir problemas de formatação |
 | `npm run format`    | Formata todo o código com Prettier                   |
 
