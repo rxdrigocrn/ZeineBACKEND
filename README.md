@@ -51,7 +51,7 @@ Ele fornece autenticação JWT, upload de imagens e gerenciamento de usuários e
     JWT_SECRET=SEU_SEGREDO_SUPER_SECRETO
 
     # URL do banco de dados PostgreSQL
-    DATABASE_URL="postgresql://postgres:SENHA@localhost:5432/zeine?schema=public"
+    DATABASE_URL="postgresql://postgres:SENHA@localhost:5432/nome_do_banco?schema=public"
 
     # Porta do backend
     PORT=5000
