@@ -30,48 +30,48 @@ export class UsersController {
         return this.usersService.findMe(userId);
     }
 
-  @Patch('profile')
-@UseGuards(JwtAuthGuard)
-@UseInterceptors(
-    FileInterceptor('profileImage', {
-        storage: diskStorage({
-            destination: (req, file, cb) => {
-                const uploadPath = './uploads/profile';
-                fs.mkdirSync(uploadPath, { recursive: true });
-                cb(null, uploadPath);
-            },
-            filename: (_, file, cb) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                cb(null, uniqueSuffix + extname(file.originalname));
-            },
+    @Patch('profile')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(
+        FileInterceptor('profileImage', {
+            storage: diskStorage({
+                destination: (req, file, cb) => {
+                    const uploadPath = './uploads/profile';
+                    fs.mkdirSync(uploadPath, { recursive: true });
+                    cb(null, uploadPath);
+                },
+                filename: (_, file, cb) => {
+                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+                    cb(null, uniqueSuffix + extname(file.originalname));
+                },
+            }),
         }),
-    }),
-)
-async updateProfile(
-    @Req() req: any,
-    @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() file: Express.Multer.File,
-) {
-    const userId = req.user.userId;
+    )
+    async updateProfile(
+        @Req() req: any,
+        @Body() updateUserDto: UpdateUserDto,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        const userId = req.user.userId;
 
-    let profileImagePath: string | undefined;
+        let profileImagePath: string | undefined;
 
-    if (file) {
-        const allowedMimes = ['image/png', 'image/jpeg', 'image/jpg'];
-        if (!allowedMimes.includes(file.mimetype)) {
-            throw new BadRequestException(
-                `Tipo de arquivo inválido. Permitido: ${allowedMimes.join(', ')}`,
-            );
+        if (file) {
+            const allowedMimes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!allowedMimes.includes(file.mimetype)) {
+                throw new BadRequestException(
+                    `Tipo de arquivo inválido. Permitido: ${allowedMimes.join(', ')}`,
+                );
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                throw new BadRequestException('Arquivo muito grande. Máx 5MB');
+            }
+
+            profileImagePath = file.path.replace(/\\/g, '/');
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-            throw new BadRequestException('Arquivo muito grande. Máx 5MB');
-        }
-
-         profileImagePath = file.path.replace(/\\/g, '/');
+        return this.usersService.update(userId, updateUserDto, profileImagePath);
     }
-
-    return this.usersService.update(userId, updateUserDto, profileImagePath);
-}
 
 }
