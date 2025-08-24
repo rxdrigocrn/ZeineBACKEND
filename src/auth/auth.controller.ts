@@ -7,8 +7,10 @@ import type { Request, Response } from 'express';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UsersService } from '../users/users.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { diskStorage, memoryStorage } from 'multer';
+import { diskStorage } from 'multer';
 import type { Express } from 'express';
+import * as fs from 'fs';
+import { extname } from 'path';
 
 @Controller('auth')
 export class AuthController {
@@ -18,9 +20,21 @@ export class AuthController {
     ) { }
 
     @Post('register')
-    @UseInterceptors(FileInterceptor('profilePicture', {
-        storage: memoryStorage(),
-    }))
+    @UseInterceptors(
+        FileInterceptor('profilePicture', {
+            storage: diskStorage({
+                destination: (req, file, cb) => {
+                    const uploadPath = './uploads/profile';
+                    fs.mkdirSync(uploadPath, { recursive: true });
+                    cb(null, uploadPath);
+                },
+                filename: (_, file, cb) => {
+                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+                    cb(null, uniqueSuffix + extname(file.originalname));
+                },
+            }),
+        }),
+    )
     async register(
         @UploadedFile(
             new ParseFilePipe({
@@ -34,17 +48,14 @@ export class AuthController {
         file: Express.Multer.File,
         @Body() registerUserDto: RegisterUserDto
     ) {
-
         let profilePicturePath: string | null = null;
         if (file) {
-            const fs = require('fs');
-            const path = `./uploads/${Date.now()}-${file.originalname}`;
-            fs.writeFileSync(path, file.buffer);
-            profilePicturePath = path;
+            profilePicturePath = `/uploads/profile/${file.filename}`;
         }
 
         return this.usersService.create(registerUserDto, profilePicturePath);
     }
+
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
