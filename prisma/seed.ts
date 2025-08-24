@@ -9,9 +9,9 @@ function slugify(text: string) {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')      
-    .replace(/[^\w\-]+/g, '')   
-    .replace(/\-\-+/g, '-');    
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
 }
 
 async function main() {
@@ -76,9 +76,13 @@ async function main() {
   ];
 
   for (const p of productsData) {
-    const category = categories.find(c => c.name === p.categoryName)!;
-    await prisma.product.create({
-      data: {
+    const category = categories.find((c) => c.name === p.categoryName)!;
+    const productSlug = slugify(p.title);
+
+    await prisma.product.upsert({
+      where: { slug: productSlug },
+      update: {},
+      create: {
         title: p.title,
         description: p.description,
         price: p.price,
@@ -86,11 +90,10 @@ async function main() {
         status: p.status,
         userId: user.id,
         categoryId: category.id,
-        slug: slugify(p.title),
+        slug: productSlug,
       },
     });
   }
-
   console.log('✅ Seed rodado com sucesso');
 }
 
