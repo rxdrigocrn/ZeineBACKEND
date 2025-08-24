@@ -29,7 +29,7 @@ Ele fornece autenticação JWT, upload de imagens e gerenciamento de usuários e
 
 1. **Clone o repositório**
     ```bash
-    git clone https://github.com/SEU_USUARIO/SEU_REPO_BACKEND.git
+    git clone https://github.com/rxdrigocrn/ZeineBACKEND.git
     cd SEU_REPO_BACKEND
     ```
 
@@ -125,3 +125,7 @@ credentials: true
 - Os uploads de imagens precisam ser incluídos no `remotePatterns` do frontend Next.js para funcionarem.
 - JWT é usado tanto no backend quanto no middleware do frontend para autenticação.
 - Usuário admin criado no seed: `admin@teste.com` / `123456`.
+
+## DER do Banco de dados
+
+[DER]([http://localhost:5000](https://drive.google.com/file/d/1lUah-OUu_b-D3mqkZgzLpbF7miWAeLUd/view?usp=sharing)).
