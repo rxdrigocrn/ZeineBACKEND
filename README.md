@@ -29,7 +29,7 @@ Ele fornece autenticação JWT, upload de imagens e gerenciamento de usuários e
 
 1. **Clone o repositório**
     ```bash
-    git clone https://github.com/SEU_USUARIO/SEU_REPO_BACKEND.git
+    git clone https://github.com/rxdrigocrn/ZeineBACKEND.git
     cd SEU_REPO_BACKEND
     ```
 
