@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, Res, Get, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Res, Get, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, BadRequestException } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './auth.service';
@@ -40,21 +40,30 @@ export class AuthController {
             new ParseFilePipe({
                 validators: [
                     new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-                    new FileTypeValidator({ fileType: /^(image\/jpeg|image\/png)$/ }),
                 ],
                 fileIsRequired: false,
             }),
         )
         file: Express.Multer.File,
-        @Body() registerUserDto: RegisterUserDto
+        @Body() registerUserDto: RegisterUserDto,
     ) {
         let profilePicturePath: string | null = null;
+
         if (file) {
-            profilePicturePath = `/uploads/profile/${file.filename}`;
+            // Validação manual do tipo de arquivo (mais confiável)
+            const allowedMimes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!allowedMimes.includes(file.mimetype.toLowerCase())) {
+                throw new BadRequestException(
+                    `Tipo de arquivo inválido. Permitido: ${allowedMimes.join(', ')}`
+                );
+            }
+
+             profilePicturePath = `uploads/profile/${file.filename}`;
         }
 
         return this.usersService.create(registerUserDto, profilePicturePath);
     }
+
 
     @UseGuards(LocalAuthGuard)
     @Post('login')
