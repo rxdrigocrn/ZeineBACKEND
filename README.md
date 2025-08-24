@@ -36,10 +36,6 @@ Ele fornece autenticação JWT, upload de imagens e gerenciamento de usuários e
 2. **Instale as dependências**
     ```bash
     npm install
-    # ou
-    yarn
-    # ou
-    pnpm install
     ```
 
 3. **Configurar variáveis de ambiente**
@@ -60,8 +56,6 @@ Ele fornece autenticação JWT, upload de imagens e gerenciamento de usuários e
     BASE_URL=http://localhost:5000
     ```
 
-    ⚠️ **Não faça commit do `.env` com valores reais. Use `.env.example` como referência.**
-
 4. **Criar o banco e rodar migrações + seed**
     ```bash
     npm run migrate
@@ -76,10 +70,6 @@ Ele fornece autenticação JWT, upload de imagens e gerenciamento de usuários e
 5. **Rodar o servidor em modo desenvolvimento**
     ```bash
     npm run start:dev
-    # ou
-    yarn start:dev
-    # ou
-    pnpm start:dev
     ```
 
     O servidor estará disponível em [http://localhost:5000](http://localhost:5000).
