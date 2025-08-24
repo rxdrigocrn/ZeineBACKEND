@@ -129,3 +129,11 @@ credentials: true
 ## DER do Banco de dados
 
 [DER]([http://localhost:5000](https://drive.google.com/file/d/1lUah-OUu_b-D3mqkZgzLpbF7miWAeLUd/view?usp=sharing)).
+
+## 👾 Decisões Técnicas
+
+Decisões Técnicas do Back-end
+
+- Uploads de arquivos: Foi criada uma pasta uploads para armazenar arquivos localmente, enquanto apenas o caminho da imagem é salvo no banco de dados. Isso mantém o banco leve e facilita a organização dos arquivos.
+
+- Rotas privadas e autenticação: As rotas privadas utilizam JWT no header Authorization para validação, garantindo que apenas usuários autenticados possam acessá-las.
