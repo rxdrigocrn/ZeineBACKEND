@@ -63,7 +63,7 @@ async function main() {
       price: 49.9,
       image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab',
       status: ProductStatus.Anunciado,
-      categoryName: 'Vestiário',
+      categoryName: 'Vestuário',
     },
     {
       title: 'Mesa de madeira',
