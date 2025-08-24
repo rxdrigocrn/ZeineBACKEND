@@ -26,9 +26,10 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: 'https://zeine-frontend.vercel.app',
+    origin: ['https://zeine-frontend.vercel.app', 'http://localhost:3000'],
     credentials: true,
   });
+
 
   await app.listen(process.env.PORT ? Number(process.env.PORT) : 5000);
 }
